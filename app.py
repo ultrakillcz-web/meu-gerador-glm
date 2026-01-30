@@ -1,48 +1,35 @@
 import streamlit as st
 
-def generate_glm_prompt(task_type, context, tech_stack, complexity):
-    thinking_instruction = ""
-    if complexity == "Alta (Deep Thinking)":
-        thinking_instruction = "Utilize o modo 'Preserved Thinking' para decompor esta tarefa em sub-etapas lógicas antes de escrever qualquer código."
+# Configuração da página (deixa o app com cara de profissional no celular)
+st.set_page_config(page_title="GLM-4.7 Prompt Master", page_icon="🚀")
+
+st.title("🚀 GLM-4.7 Prompt Master")
+
+# NOVO: Botão de Ajuda (Expander)
+with st.expander("❓ Como utilizar e o que significam as siglas?"):
+    st.markdown("""
+    ### Guia Rápido:
+    1. **Tipo de Projeto:** Define o objetivo. *Full-stack* significa criar o app inteiro (visual e lógica).
+    2. **Stack Tecnológica:** São as ferramentas. **Next.js** e **Tailwind** são padrões modernos para sites rápidos e bonitos.
+    3. **Deep Thinking:** Ativa o modo de 'raciocínio profundo' do GLM-4.7. Ideal para problemas difíceis.
+    4. **Descrição:** Diga o que o app faz. Ex: 'Um app de lista de compras'.
     
-    prompt = f"""
-### SISTEMA: MODO FULL-STACK EXPERT (GLM-4.7)
-Você é um Engenheiro de Software Full-stack Senior especializado em GLM-4.7 Agentic Workflows.
-{thinking_instruction}
+    **O que fazer com o resultado?**
+    Copie o texto gerado e cole no [chat.z.ai](https://chat.z.ai).
+    """)
 
-### OBJETIVO
-{context}
-
-### TECH STACK OBRIGATÓRIA
-{tech_stack}
-
-### DIRETRIZES DE EXECUÇÃO (VIBE CODING)
-1. UI/UX: Utilize Tailwind CSS e priorize uma estética moderna e minimalista.
-2. ESTRUTURA: Gere um boilerplate completo, incluindo configurações de backend e integração de banco de dados se necessário.
-3. QUALIDADE: O código deve ser 'production-ready', com tratamento de erros e tipagem estrita.
-4. AGENTIC: Se precisar de ferramentas externas, descreva o plano de ação antes da execução.
-
-### TAREFA ESPECÍFICA
-Tipo de Tarefa: {task_type}
-Por favor, forneça o plano de arquitetura seguido pela implementação completa dos arquivos.
-"""
-    return prompt
-
-# Interface Streamlit
-st.set_page_config(page_title="GLM-4.7 Prompt Generator", page_icon="🚀")
-st.title("🚀 GLM-4.7 Prompt Generator")
-st.markdown("Gerador de prompts otimizados para a função Full-stack do novo GLM-4.7.")
+def generate_glm_prompt(task_type, context, tech_stack, complexity):
+    thinking = "Utilize o modo 'Preserved Thinking' para analisar o projeto." if complexity == "Alta (Deep Thinking)" else ""
+    return f"""### SISTEMA: MODO FULL-STACK EXPERT (GLM-4.7)\n{thinking}\n\n### OBJETIVO\n{context}\n\n### TECH STACK\n{tech_stack}\n\n### TAREFA\nTipo: {task_type}\nImplemente a arquitetura completa."""
 
 with st.form("prompt_form"):
-    task_type = st.selectbox("Tipo de Projeto", ["Web App Full-stack", "Automação de API", "Refatoração de Código", "Dashboards de Dados"])
-    tech_stack = st.text_input("Stack Tecnológica (ex: Next.js, FastAPI, Supabase, Tailwind)", "Next.js, Tailwind, TypeScript")
+    task_type = st.selectbox("Tipo de Projeto", ["Web App Full-stack", "Automação de API", "Refatoração de Código"], help="Selecione o que deseja criar.")
+    tech_stack = st.text_input("Stack Tecnológica", "Next.js, Tailwind, TypeScript", help="Linguagens que o robô vai usar.")
     complexity = st.radio("Nível de Raciocínio", ["Padrão", "Alta (Deep Thinking)"])
-    context = st.text_area("Descreva o que o app deve fazer:", "Crie um sistema de gerenciamento de tarefas com autenticação e drag-and-drop.")
+    context = st.text_area("Descreva o que o app deve fazer:")
     
     submitted = st.form_submit_button("Gerar Prompt")
 
 if submitted:
-    final_prompt = generate_glm_prompt(task_type, context, tech_stack, complexity)
-    st.subheader("Seu Prompt para o GLM-4.7:")
-    st.code(final_prompt, language="markdown")
-    st.info("💡 Dica: No chat.z.ai, certifique-se de que o modelo GLM-4.7 está selecionado para melhores resultados com este prompt.")
+    st.subheader("Seu Prompt Pronto:")
+    st.code(generate_glm_prompt(task_type, context, tech_stack, complexity), language="markdown")
