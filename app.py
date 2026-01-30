@@ -1,35 +1,59 @@
 import streamlit as st
 
-# Configuração da página (deixa o app com cara de profissional no celular)
+# Configuração da página
 st.set_page_config(page_title="GLM-4.7 Prompt Master", page_icon="🚀")
 
 st.title("🚀 GLM-4.7 Prompt Master")
 
-# NOVO: Botão de Ajuda (Expander)
-with st.expander("❓ Como utilizar e o que significam as siglas?"):
+# Seção de Ajuda Geral
+with st.expander("❓ Guia para Iniciantes (Clique aqui)"):
     st.markdown("""
-    ### Guia Rápido:
-    1. **Tipo de Projeto:** Define o objetivo. *Full-stack* significa criar o app inteiro (visual e lógica).
-    2. **Stack Tecnológica:** São as ferramentas. **Next.js** e **Tailwind** são padrões modernos para sites rápidos e bonitos.
-    3. **Deep Thinking:** Ativa o modo de 'raciocínio profundo' do GLM-4.7. Ideal para problemas difíceis.
-    4. **Descrição:** Diga o que o app faz. Ex: 'Um app de lista de compras'.
-    
-    **O que fazer com o resultado?**
-    Copie o texto gerado e cole no [chat.z.ai](https://chat.z.ai).
+    **Como usar este app:**
+    1. Escolha o **Tipo de Projeto** (veja a explicação azul na tela).
+    2. Defina a **Tecnologia** (se não souber, mantenha o padrão).
+    3. Escreva sua ideia e clique em **Gerar Prompt**.
+    4. Copie o código e cole no Chat da Zhipu AI.
     """)
 
 def generate_glm_prompt(task_type, context, tech_stack, complexity):
-    thinking = "Utilize o modo 'Preserved Thinking' para analisar o projeto." if complexity == "Alta (Deep Thinking)" else ""
-    return f"""### SISTEMA: MODO FULL-STACK EXPERT (GLM-4.7)\n{thinking}\n\n### OBJETIVO\n{context}\n\n### TECH STACK\n{tech_stack}\n\n### TAREFA\nTipo: {task_type}\nImplemente a arquitetura completa."""
+    thinking = "Utilize o modo 'Preserved Thinking' para decompor esta tarefa passo a passo." if complexity == "Alta (Deep Thinking)" else ""
+    return f"""### SISTEMA: MODO FULL-STACK EXPERT (GLM-4.7)\n{thinking}\n\n### OBJETIVO\n{context}\n\n### TECH STACK\n{tech_stack}\n\n### TAREFA\nTipo: {task_type}\nPriorize arquitetura limpa e UI moderna (Vibe Coding)."""
 
 with st.form("prompt_form"):
-    task_type = st.selectbox("Tipo de Projeto", ["Web App Full-stack", "Automação de API", "Refatoração de Código"], help="Selecione o que deseja criar.")
-    tech_stack = st.text_input("Stack Tecnológica", "Next.js, Tailwind, TypeScript", help="Linguagens que o robô vai usar.")
-    complexity = st.radio("Nível de Raciocínio", ["Padrão", "Alta (Deep Thinking)"])
-    context = st.text_area("Descreva o que o app deve fazer:")
+    # 1. Seleção do Tipo de Projeto
+    task_options = {
+        "Web App Full-stack": "Cria um sistema completo: O visual (Site) + O cérebro (Servidor/Banco de Dados). Ex: Lojas, Redes Sociais.",
+        "Automação de API": "Cria pontes entre apps. Ex: 'Quando alguém preencher o Google Forms, me avise no Telegram'.",
+        "Refatoração de Código": "Limpeza. Você cola um código ruim/lento e o robô devolve um código profissional e rápido.",
+        "Dashboards de Dados": "Visualização. Transforma planilhas chatas em gráficos interativos e bonitos."
+    }
+    task_type = st.selectbox("1. O que vamos criar?", list(task_options.keys()))
     
-    submitted = st.form_submit_button("Gerar Prompt")
+    # Mostra a explicação dinâmica do item selecionado
+    st.info(f"💡 **Explicação:** {task_options[task_type]}")
+
+    # 2. Tech Stack
+    st.markdown("---") 
+    tech_stack = st.text_input(
+        "2. Quais ferramentas usar? (Tech Stack)", 
+        "Next.js, Tailwind, TypeScript",
+        help="Next.js (Site Rápido), Tailwind (Visual Bonito), TypeScript (Segurança). Se não souber, não mude."
+    )
+
+    # 3. Nível de Raciocínio
+    st.markdown("---")
+    complexity = st.radio(
+        "3. Nível de Inteligência do Robô", 
+        ["Padrão", "Alta (Deep Thinking)"],
+        captions=["Respostas rápidas para coisas simples.", "O robô 'pensa' antes de responder. Ideal para projetos grandes."]
+    )
+
+    # 4. Descrição
+    st.markdown("---")
+    context = st.text_area("4. Descreva sua ideia:", placeholder="Ex: Um app para controlar minhas despesas mensais com gráficos...")
+    
+    submitted = st.form_submit_button("Gerar Prompt Mágico ✨")
 
 if submitted:
-    st.subheader("Seu Prompt Pronto:")
+    st.success("Prompt gerado com sucesso! Copie abaixo:")
     st.code(generate_glm_prompt(task_type, context, tech_stack, complexity), language="markdown")
