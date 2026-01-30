@@ -5,55 +5,82 @@ st.set_page_config(page_title="GLM-4.7 Prompt Master", page_icon="🚀")
 
 st.title("🚀 GLM-4.7 Prompt Master")
 
-# Seção de Ajuda Geral
-with st.expander("❓ Guia para Iniciantes (Clique aqui)"):
-    st.markdown("""
-    **Como usar este app:**
-    1. Escolha o **Tipo de Projeto** (veja a explicação azul na tela).
-    2. Defina a **Tecnologia** (se não souber, mantenha o padrão).
-    3. Escreva sua ideia e clique em **Gerar Prompt**.
-    4. Copie o código e cole no Chat da Zhipu AI.
-    """)
+# --- LÓGICA DO PROMPT (CÉREBRO DO APP) ---
+def get_prompt_instructions(task_type):
+    # Aqui definimos instruções diferentes para cada tipo de tarefa
+    if task_type == "Web App Full-stack":
+        return "Foco em arquitetura escalável, UI moderna (Tailwind), banco de dados e rotas de API seguras."
+    elif task_type == "Automação de API":
+        return "Foco em scripts Python eficientes, tratamento de erros, bibliotecas 'requests' ou 'selenium' e logs detalhados."
+    elif task_type == "Refatoração de Código":
+        return "Analise o código fornecido, identifique gargalos de performance, melhore a legibilidade e aplique Clean Code."
+    elif task_type == "Dashboards de Dados":
+        return "Foco em visualização de dados (bibliotecas como Plotly ou Recharts), limpeza de dados e insights visuais claros."
+    return "Siga as melhores práticas de desenvolvimento."
 
 def generate_glm_prompt(task_type, context, tech_stack, complexity):
-    thinking = "Utilize o modo 'Preserved Thinking' para decompor esta tarefa passo a passo." if complexity == "Alta (Deep Thinking)" else ""
-    return f"""### SISTEMA: MODO FULL-STACK EXPERT (GLM-4.7)\n{thinking}\n\n### OBJETIVO\n{context}\n\n### TECH STACK\n{tech_stack}\n\n### TAREFA\nTipo: {task_type}\nPriorize arquitetura limpa e UI moderna (Vibe Coding)."""
+    thinking = "Utilize o modo 'Preserved Thinking' para planejar a solução passo a passo antes de codificar." if complexity == "Alta (Deep Thinking)" else ""
+    specific_instructions = get_prompt_instructions(task_type)
+    
+    return f"""### SISTEMA: MODO EXPERT (GLM-4.7)
+{thinking}
+
+### PERFIL
+Você é um Engenheiro de Software Sênior especializado em {task_type}.
+
+### OBJETIVO
+{context}
+
+### INSTRUÇÕES TÉCNICAS ESPECÍFICAS
+{specific_instructions}
+
+### TECH STACK
+{tech_stack}
+
+### SAÍDA ESPERADA
+Planejamento seguido da implementação completa do código."""
+
+# --- INTERFACE (CORPO DO APP) ---
+
+with st.expander("❓ Guia Rápido (Clique para abrir)"):
+    st.markdown("Selecione o tipo de projeto abaixo para ver a explicação e gerar o prompt ideal.")
 
 with st.form("prompt_form"):
-    # 1. Seleção do Tipo de Projeto
+    
+    # 1. Dicionário de Opções e Descrições
+    # A chave é o nome no menu, o valor é a explicação da caixa azul
     task_options = {
-        "Web App Full-stack": "Cria um sistema completo: O visual (Site) + O cérebro (Servidor/Banco de Dados). Ex: Lojas, Redes Sociais.",
-        "Automação de API": "Cria pontes entre apps. Ex: 'Quando alguém preencher o Google Forms, me avise no Telegram'.",
-        "Refatoração de Código": "Limpeza. Você cola um código ruim/lento e o robô devolve um código profissional e rápido.",
-        "Dashboards de Dados": "Visualização. Transforma planilhas chatas em gráficos interativos e bonitos."
+        "Web App Full-stack": "Cria sites completos (Lojas, Sistemas). Foco em Visual + Banco de Dados.",
+        "Automação de API": "Robôs que conectam sistemas. Ex: Enviar planilha para o WhatsApp.",
+        "Refatoração de Código": "Limpeza e otimização. Transforma código ruim em código profissional.",
+        "Dashboards de Dados": "Gráficos e Relatórios. Transforma dados brutos em visualizações bonitas."
     }
+    
+    # O selectbox mostra as chaves (nomes)
     task_type = st.selectbox("1. O que vamos criar?", list(task_options.keys()))
     
-    # Mostra a explicação dinâmica do item selecionado
-    st.info(f"💡 **Explicação:** {task_options[task_type]}")
+    # A caixa azul mostra o valor correspondente à chave selecionada
+    st.info(f"💡 {task_options[task_type]}")
 
-    # 2. Tech Stack
-    st.markdown("---") 
-    tech_stack = st.text_input(
-        "2. Quais ferramentas usar? (Tech Stack)", 
-        "Next.js, Tailwind, TypeScript",
-        help="Next.js (Site Rápido), Tailwind (Visual Bonito), TypeScript (Segurança). Se não souber, não mude."
-    )
-
-    # 3. Nível de Raciocínio
     st.markdown("---")
-    complexity = st.radio(
-        "3. Nível de Inteligência do Robô", 
-        ["Padrão", "Alta (Deep Thinking)"],
-        captions=["Respostas rápidas para coisas simples.", "O robô 'pensa' antes de responder. Ideal para projetos grandes."]
-    )
-
-    # 4. Descrição
-    st.markdown("---")
-    context = st.text_area("4. Descreva sua ideia:", placeholder="Ex: Um app para controlar minhas despesas mensais com gráficos...")
     
-    submitted = st.form_submit_button("Gerar Prompt Mágico ✨")
+    # 2. Tech Stack (Sugestão muda conforme a escolha? Podemos deixar fixo por enquanto para simplificar)
+    tech_stack = st.text_input("2. Tecnologias", "Next.js, Tailwind, TypeScript", help="Ferramentas que o robô vai usar.")
+
+    st.markdown("---")
+    
+    # 3. Nível
+    complexity = st.radio("3. Nível de Raciocínio", ["Padrão", "Alta (Deep Thinking)"])
+
+    st.markdown("---")
+    
+    # 4. Contexto
+    context = st.text_area("4. Descreva sua ideia:", height=100, placeholder="Ex: Um robô que lê meu e-mail e salva os anexos no Drive...")
+    
+    submitted = st.form_submit_button("Gerar Prompt ✨")
 
 if submitted:
-    st.success("Prompt gerado com sucesso! Copie abaixo:")
-    st.code(generate_glm_prompt(task_type, context, tech_stack, complexity), language="markdown")
+    st.success("Prompt Gerado! Copie abaixo:")
+    # Chama a função que agora é inteligente e muda o texto baseada na escolha
+    final_prompt = generate_glm_prompt(task_type, context, tech_stack, complexity)
+    st.code(final_prompt, language="markdown")
