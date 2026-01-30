@@ -1,81 +1,145 @@
 import streamlit as st
+import random
 
 # Configuração da página
-st.set_page_config(page_title="GLM-4.7 Prompt Master", page_icon="🚀")
+st.set_page_config(page_title="GLM-4.7 Ultimate Master", page_icon="💎")
 
-st.title("🚀 GLM-4.7 Prompt Master")
+st.title("💎 GLM-4.7 Ultimate Master")
 
-# --- LÓGICA DO PROMPT ---
-def get_prompt_instructions(task_type):
-    if task_type == "Web App Full-stack":
-        return "Foco em arquitetura escalável, UI moderna (Tailwind), banco de dados e rotas de API seguras."
-    elif task_type == "Automação de API":
-        return "Foco em scripts Python eficientes, tratamento de erros, bibliotecas 'requests' ou 'selenium' e logs detalhados."
-    elif task_type == "Refatoração de Código":
-        return "Analise o código fornecido, identifique gargalos de performance, melhore a legibilidade e aplique Clean Code."
-    elif task_type == "Dashboards de Dados":
-        return "Foco em visualização de dados (bibliotecas como Plotly ou Recharts), limpeza de dados e insights visuais claros."
-    return "Siga as melhores práticas."
-
-def generate_glm_prompt(task_type, context, tech_stack, complexity):
-    thinking = "Utilize o modo 'Preserved Thinking' para planejar a solução passo a passo." if complexity == "Alta (Deep Thinking)" else ""
-    specific_instructions = get_prompt_instructions(task_type)
-    
-    prompt = f"""### SISTEMA: MODO EXPERT (GLM-4.7)
-{thinking}
-
-### PERFIL
-Você é um Engenheiro de Software Sênior especializado em {task_type}.
-
-### OBJETIVO
-{context}
-
-### INSTRUÇÕES TÉCNICAS
-{specific_instructions}
-
-### TECH STACK
-{tech_stack}
-
-### SAÍDA ESPERADA
-Planejamento seguido da implementação completa do código."""
-    return prompt
-
-# --- INTERFACE REATIVA (SEM FORMULÁRIO TRAVADO) ---
-
-with st.expander("❓ Guia Rápido (Clique para abrir)"):
-    st.markdown("Selecione o tipo de projeto, preencha os dados e gere o prompt.")
-
-# 1. Seleção (Agora fora do formulário para atualizar na hora)
-task_options = {
-    "Web App Full-stack": "Cria sites completos (Lojas, Sistemas). Foco em Visual + Banco de Dados.",
-    "Automação de API": "Robôs que conectam sistemas. Ex: Enviar planilha para o WhatsApp.",
-    "Refatoração de Código": "Limpeza. Transforma código ruim em código profissional.",
-    "Dashboards de Dados": "Gráficos. Transforma dados brutos em visualizações bonitas."
+# --- 1. CÉREBRO DO APP (GLM_MODES) ---
+# Aqui estão as instruções técnicas PRO que ativam as ferramentas secretas da Zhipu AI.
+GLM_MODES = {
+    "Full-Stack Developer 💻": {
+        "desc": "Cria sites e apps. Ativa o modo 'Vibe Coding' (Visual bonito + Código limpo).",
+        "instruction": "Atue como Full-Stack Agent. Use 'Artifacts' para gerar código. HABILITAR: Preserved Thinking. FERRAMENTA: Code Interpreter para scripts complexos.",
+        "examples": [
+            "Crie um sistema Kanban (tipo Trello) com React e Firebase.",
+            "Desenvolva um SaaS de agendamento médico com notificações WhatsApp.",
+            "Dashboard financeiro que importa extrato bancário e gera gráficos.",
+            "App de Delivery com geolocalização e painel administrativo.",
+            "Landing Page animada para produto de IA (foco em conversão)."
+        ]
+    },
+    "AI Slides / Presentation 📊": {
+        "desc": "Gera apresentações. Usa o motor 'GLM Slide Agent' para criar roteiros visuais.",
+        "instruction": "Atue como Presentation Agent. Gere código para 'Zhipu Slides' ou Markdown estruturado. ESTRUTURA: [Capa] -> [Índice] -> [Conteúdo Visual] -> [Script do Orador].",
+        "examples": [
+            "Pitch Deck para Startup de Energia Solar (10 slides).",
+            "Aula didática sobre História da Roma Antiga (foco visual).",
+            "Relatório Trimestral de Marketing com análise de KPI.",
+            "Treinamento de Vendas: Como contornar objeções."
+        ]
+    },
+    "Magic Design / Visual 🎨": {
+        "desc": "Cria imagens e UI. Ativa o modelo 'CogView-3' e 'GLM-Image'.",
+        "instruction": "Atue como Visual Designer. Para imagens, use a tool 't2i' (Text-to-Image) com prompts detalhados. Para UI, gere código Tailwind/Figma concepts.",
+        "examples": [
+            "Design System (Cores, Tipografia) para app de Meditação.",
+            "Imagens realistas de uma cidade futurista cyberpunk (Prompt DALL-E/Flux).",
+            "Redesign da interface do Instagram focado em acessibilidade.",
+            "Identidade visual (Logo e Paleta) para cafeteria gourmet."
+        ]
+    },
+    "Deep Research / Pesquisa 🔍": {
+        "desc": "Pesquisa profunda na web. Ativa a tool 'BrowseComp' (Navegador).",
+        "instruction": "Atue como Research Scientist. OBRIGATÓRIO: Use a tool 'web_browser' para buscar dados em tempo real. CITE: Fontes com URLs verificadas e faça análise crítica.",
+        "examples": [
+            "Tendências de IA para 2026 e impacto no mercado.",
+            "Comparativo técnico: iPhone 16 vs Samsung S25 Ultra (baseado em reviews).",
+            "Dossiê sobre regulação de criptomoedas no Brasil.",
+            "Estudo de mercado: Nichos de E-commerce em crescimento."
+        ]
+    },
+    "Automação & Scripts 🤖": {
+        "desc": "Robôs e Scripts Python para tarefas repetitivas.",
+        "instruction": "Atue como Engenheiro de Automação. Crie scripts Python robustos. OBRIGATÓRIO: Tratamento de erros (try/except) e logs de execução.",
+        "examples": [
+            "Script que monitora Bitcoin e envia SMS se cair 5%.",
+            "Automação que organiza pasta de Downloads por tipo de arquivo.",
+            "Bot que verifica andamento processual em site jurídico.",
+            "Extrator de dados de PDF para Excel (OCR)."
+        ]
+    }
 }
 
-# Ao mudar este item, o app recarrega instantaneamente
-task_type = st.selectbox("1. O que vamos criar?", list(task_options.keys()))
+# --- 2. INTERFACE INTELIGENTE ---
 
-# A explicação agora vai mudar sempre que o item acima mudar
-st.info(f"💡 {task_options[task_type]}")
+# Inicializa o sorteio vazio
+if 'random_example' not in st.session_state:
+    st.session_state.random_example = ""
+
+with st.expander("❓ Guia V7.0 (Funções Completas)"):
+    st.markdown("""
+    **Modos Disponíveis:**
+    * **Full-Stack:** Sites e Apps.
+    * **AI Slides:** Apresentações e Roteiros.
+    * **Magic Design:** Imagens e Interfaces.
+    * **Deep Research:** Pesquisa na Web com Fontes.
+    """)
+
+# Menu Principal
+selected_mode = st.selectbox("1. Qual 'Superpoder' vamos usar?", list(GLM_MODES.keys()))
+mode_data = GLM_MODES[selected_mode]
+
+# Explicação Azul
+st.info(f"💡 **O que faz:** {mode_data['desc']}")
 
 st.markdown("---")
 
-# 2. Outros inputs
-tech_stack = st.text_input("2. Tecnologias", "Next.js, Tailwind, TypeScript", help="Ferramentas que o robô vai usar.")
+# Ferramentas Adaptativas (O nome do campo muda conforme o modo)
+label_ferramentas = "2. Stack Tecnológica (ex: Next.js)" 
+help_ferramentas = "Linguagens de programação"
+
+if "Slides" in selected_mode:
+    label_ferramentas = "2. Estilo da Apresentação"
+    help_ferramentas = "Ex: Corporativo, Divertido, Minimalista"
+elif "Research" in selected_mode:
+    label_ferramentas = "2. Foco da Pesquisa"
+    help_ferramentas = "Ex: Dados técnicos, Mercado Financeiro, Acadêmico"
+elif "Magic" in selected_mode:
+    label_ferramentas = "2. Estilo Visual"
+    help_ferramentas = "Ex: Cyberpunk, Pastel, Neobrutalism"
+
+tools_input = st.text_input(label_ferramentas, help=help_ferramentas)
 
 st.markdown("---")
 
-complexity = st.radio("3. Nível de Raciocínio", ["Padrão", "Alta (Deep Thinking)"])
+# Botão de Sorteio e Campo de Texto
+col1, col2 = st.columns([2, 1])
+with col1:
+    st.write("3. Descreva sua ideia (ou sorteie uma ao lado):")
+with col2:
+    if st.button("🎲 Sortear Ideia"):
+        st.session_state.random_example = random.choice(mode_data['examples'])
+
+context = st.text_area("Contexto:", value=st.session_state.random_example, height=120, label_visibility="collapsed")
 
 st.markdown("---")
 
-context = st.text_area("4. Descreva sua ideia:", height=100, placeholder="Ex: Um robô que lê meu e-mail...")
+# Nível de Raciocínio
+complexity = st.radio("4. Nível de Raciocínio", ["Padrão", "Alta (Deep Thinking/Reasoning)"])
 
-# Botão de ação final
-if st.button("Gerar Prompt Mágico ✨", type="primary"):
-    st.success("Prompt Gerado! Copie abaixo:")
-    final_prompt = generate_glm_prompt(task_type, context, tech_stack, complexity)
-    st.code(final_prompt, language="markdown")
+# --- 3. GERADOR DE PROMPT ---
+if st.button("Gerar Prompt Supremo 🚀", type="primary"):
+    
+    thinking_block = ""
+    if complexity == "Alta (Deep Thinking/Reasoning)":
+        thinking_block = "Utilize o modo 'Thinking/Reasoning' para planejar detalhadamente antes de executar."
 
-# FIM DO ARQUIVO
+    prompt_final = f"""### SISTEMA: ATIVAR MODO {selected_mode.upper()} (GLM-4.7)
+{thinking_block}
+
+### PERFIL DE ATUAÇÃO
+{mode_data['instruction']}
+
+### OBJETIVO DO USUÁRIO
+{context}
+
+### CONFIGURAÇÕES / FERRAMENTAS
+{tools_input if tools_input else "Escolha as melhores ferramentas para a tarefa."}
+
+### FORMATO DE SAÍDA ESPERADO
+Seja extremamente detalhista. Utilize as ferramentas nativas (Browser, Code Interpreter, Canvas) conforme necessário."""
+
+    st.success("Prompt Gerado! Copie e cole no GLM-4.7:")
+    st.code(prompt_final, language="markdown")
