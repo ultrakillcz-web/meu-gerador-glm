@@ -84,3 +84,53 @@ if submitted:
     # Chama a função que agora é inteligente e muda o texto baseada na escolha
     final_prompt = generate_glm_prompt(task_type, context, tech_stack, complexity)
     st.code(final_prompt, language="markdown")
+### TECH STACK
+{tech_stack}
+
+### SAÍDA ESPERADA
+Planejamento seguido da implementação completa do código."""
+
+# --- INTERFACE (CORPO DO APP) ---
+
+with st.expander("❓ Guia Rápido (Clique para abrir)"):
+    st.markdown("Selecione o tipo de projeto abaixo para ver a explicação e gerar o prompt ideal.")
+
+with st.form("prompt_form"):
+    
+    # 1. Dicionário de Opções e Descrições
+    # A chave é o nome no menu, o valor é a explicação da caixa azul
+    task_options = {
+        "Web App Full-stack": "Cria sites completos (Lojas, Sistemas). Foco em Visual + Banco de Dados.",
+        "Automação de API": "Robôs que conectam sistemas. Ex: Enviar planilha para o WhatsApp.",
+        "Refatoração de Código": "Limpeza e otimização. Transforma código ruim em código profissional.",
+        "Dashboards de Dados": "Gráficos e Relatórios. Transforma dados brutos em visualizações bonitas."
+    }
+    
+    # O selectbox mostra as chaves (nomes)
+    task_type = st.selectbox("1. O que vamos criar?", list(task_options.keys()))
+    
+    # A caixa azul mostra o valor correspondente à chave selecionada
+    st.info(f"💡 {task_options[task_type]}")
+
+    st.markdown("---")
+    
+    # 2. Tech Stack (Sugestão muda conforme a escolha? Podemos deixar fixo por enquanto para simplificar)
+    tech_stack = st.text_input("2. Tecnologias", "Next.js, Tailwind, TypeScript", help="Ferramentas que o robô vai usar.")
+
+    st.markdown("---")
+    
+    # 3. Nível
+    complexity = st.radio("3. Nível de Raciocínio", ["Padrão", "Alta (Deep Thinking)"])
+
+    st.markdown("---")
+    
+    # 4. Contexto
+    context = st.text_area("4. Descreva sua ideia:", height=100, placeholder="Ex: Um robô que lê meu e-mail e salva os anexos no Drive...")
+    
+    submitted = st.form_submit_button("Gerar Prompt ✨")
+
+if submitted:
+    st.success("Prompt Gerado! Copie abaixo:")
+    # Chama a função que agora é inteligente e muda o texto baseada na escolha
+    final_prompt = generate_glm_prompt(task_type, context, tech_stack, complexity)
+    st.code(final_prompt, language="markdown")
