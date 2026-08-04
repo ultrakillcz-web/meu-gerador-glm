@@ -1,8 +1,10 @@
 import streamlit as st
 import random
+from pathlib import Path
 
 # Configuração da página (Aba do navegador)
-st.set_page_config(page_title="GLM Master", page_icon="/home/runner/work/meu-gerador-glm/meu-gerador-glm/icon_prompt_glm.png")
+ICON_PATH = Path(__file__).resolve().parent / "icon_prompt_glm.png"
+st.set_page_config(page_title="GLM Master", page_icon=str(ICON_PATH))
 
 # --- 1. ESTILO VISUAL (CSS) ---
 # Aqui reduzimos o tamanho do título para 50% do original e centralizamos
@@ -126,6 +128,34 @@ GLM_MODES = {
     }
 }
 
+PROMPT_RULES = {
+    "Full-Stack Developer 💻": {
+        "deliverables": "Arquitetura, estrutura de pastas, código principal, instruções de execução e próximos passos.",
+        "quality": "Código modular, seguro, tipado quando aplicável, com tratamento de erros e foco em manutenção.",
+        "output_format": "Use seções: Resumo, Arquitetura, Implementação, Comandos, Checklist de validação."
+    },
+    "AI Slides / Presentation 📊": {
+        "deliverables": "Roteiro completo por slide, narrativa, pontos-chave e script de apresentação.",
+        "quality": "Sequência lógica, clareza visual, linguagem objetiva e CTA quando aplicável.",
+        "output_format": "Use seções: Objetivo, Estrutura de Slides, Conteúdo por Slide, Script de Apresentação."
+    },
+    "Magic Design / Visual 🎨": {
+        "deliverables": "Prompt visual estruturado, direção estética, paleta, referências e variações.",
+        "quality": "Consistência visual, especificidade de estilo, composição e detalhamento técnico.",
+        "output_format": "Use seções: Conceito, Prompt Principal, Parâmetros, Variações, Critérios de Qualidade."
+    },
+    "Deep Research / Pesquisa 🔍": {
+        "deliverables": "Plano de busca, achados, análise crítica, comparativos e fontes verificáveis.",
+        "quality": "Fontes confiáveis, distinção entre fato e inferência, e síntese acionável.",
+        "output_format": "Use seções: Pergunta, Metodologia, Evidências, Análise, Conclusão, Referências."
+    },
+    "Automação & Scripts 🤖": {
+        "deliverables": "Script funcional, parâmetros, logs, tratamento de erros e instruções de uso.",
+        "quality": "Robustez, idempotência quando necessário, legibilidade e segurança operacional.",
+        "output_format": "Use seções: Objetivo, Solução, Código, Como Executar, Testes rápidos."
+    }
+}
+
 # --- 3. LÓGICA DE ESTADO (SESSION STATE) ---
 # Isso garante que quando você muda o menu, o exemplo muda sozinho.
 
@@ -197,6 +227,8 @@ if st.button("Gerar Prompt Supremo 🚀", type="primary"):
     elif model_data["requires_api"]:
         credencial_bloco = "Este modelo requer API key para integrações externas."
 
+    rule_data = PROMPT_RULES[selected_mode]
+
     prompt_final = f"""### SISTEMA: ATIVAR MODO {selected_mode.upper()} ({selected_glm_model})
 {thinking_block}
 
@@ -214,7 +246,20 @@ Credencial: {credencial_bloco}
 ### CONFIGURAÇÃO / FERRAMENTA ESCOLHIDA
 {selected_tool}
 
+### DIRETRIZES PARA MÁXIMA QUALIDADE NO GLM
+- Entenda a tarefa antes de responder e explicite premissas quando faltar contexto.
+- Não invente informações. Quando necessário, sinalize limites e peça dados faltantes.
+- Entregue resultado prático, acionável e organizado.
+- Adapte profundidade ao nível de raciocínio selecionado.
+
+### ENTREGÁVEIS OBRIGATÓRIOS DESTE MODO
+{rule_data['deliverables']}
+
+### CRITÉRIOS DE QUALIDADE
+{rule_data['quality']}
+
 ### FORMATO DE SAÍDA ESPERADO
+{rule_data['output_format']}
 Seja extremamente detalhista. Utilize as ferramentas nativas (Browser, Code Interpreter, Canvas) conforme necessário para atingir o objetivo."""
 
     st.success(f"Prompt Gerado! Copie e cole no {selected_glm_model}:")
