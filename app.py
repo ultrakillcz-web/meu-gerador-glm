@@ -2,7 +2,7 @@ import streamlit as st
 import random
 
 # Configuração da página (Aba do navegador)
-st.set_page_config(page_title="GLM-4.7 Master", page_icon="💎")
+st.set_page_config(page_title="GLM Master", page_icon="💎")
 
 # --- 1. ESTILO VISUAL (CSS) ---
 # Aqui reduzimos o tamanho do título para 50% do original e centralizamos
@@ -18,8 +18,21 @@ st.markdown("""
         font-size: 16px !important;
     }
     </style>
-    <div class="big-font">💎 GLM-4.7 Ultimate Master</div>
+    <div class="big-font">💎 GLM Ultimate Master</div>
     """, unsafe_allow_html=True)
+
+GLM_MODELS = {
+    "GLM-4.5 (API - Pago)": {"requires_api": True, "tier": "paid"},
+    "GLM-4.5-Air (API - Mais leve)": {"requires_api": True, "tier": "paid"},
+    "GLM-4.5-Flash (API - Rápido)": {"requires_api": True, "tier": "paid"},
+    "GLM-4-Plus (API)": {"requires_api": True, "tier": "paid"},
+    "GLM-4-Long (API - Contexto longo)": {"requires_api": True, "tier": "paid"},
+    "GLM-4V (API - Visão)": {"requires_api": True, "tier": "paid"},
+    "GLM-Z1-Air (API - Reasoning)": {"requires_api": True, "tier": "paid"},
+    "GLM-Z1-Flash (API - Reasoning rápido)": {"requires_api": True, "tier": "paid"},
+    "GLM-4-9B-Chat (Open-source)": {"requires_api": False, "tier": "open-source"},
+    "GLM-4-9B-Chat-1M (Open-source, contexto longo)": {"requires_api": False, "tier": "open-source"},
+}
 
 # --- 2. CÉREBRO DO APP (DADOS & LISTAS) ---
 GLM_MODES = {
@@ -127,6 +140,15 @@ if 'current_example' not in st.session_state:
 selected_mode = st.selectbox("1. Qual 'Superpoder' vamos usar?", list(GLM_MODES.keys()))
 mode_data = GLM_MODES[selected_mode]
 
+selected_glm_model = st.selectbox("Modelo GLM (Pago + Open-source):", list(GLM_MODELS.keys()))
+model_data = GLM_MODELS[selected_glm_model]
+api_key_input = ""
+if model_data["requires_api"]:
+    st.warning("⚠️ Este modelo normalmente exige API key para uso direto em integrações.")
+    api_key_input = st.text_input("API Key (opcional):", type="password", placeholder="Cole aqui sua chave...")
+else:
+    st.info("✅ Modelo open-source selecionado: não exige API key por padrão.")
+
 # Lógica de Atualização Automática:
 # Se o usuário trocou de modo, sorteamos um exemplo novo imediatamente.
 if st.session_state.last_mode != selected_mode:
@@ -169,11 +191,22 @@ if st.button("Gerar Prompt Supremo 🚀", type="primary"):
     if complexity == "Alta (Deep Thinking/Reasoning)":
         thinking_block = "Utilize o modo 'Thinking/Reasoning' para planejar detalhadamente antes de executar."
 
-    prompt_final = f"""### SISTEMA: ATIVAR MODO {selected_mode.upper()} (GLM-4.7)
+    credencial_bloco = "Sem API key informada."
+    if model_data["requires_api"] and api_key_input:
+        credencial_bloco = "API key informada pelo usuário."
+    elif model_data["requires_api"]:
+        credencial_bloco = "Este modelo requer API key para integrações externas."
+
+    prompt_final = f"""### SISTEMA: ATIVAR MODO {selected_mode.upper()} ({selected_glm_model})
 {thinking_block}
 
 ### PERFIL DE ATUAÇÃO
 {mode_data['instruction']}
+
+### MODELO GLM SELECIONADO
+{selected_glm_model}
+Tipo: {model_data['tier']}
+Credencial: {credencial_bloco}
 
 ### OBJETIVO DO USUÁRIO
 {context}
@@ -184,7 +217,7 @@ if st.button("Gerar Prompt Supremo 🚀", type="primary"):
 ### FORMATO DE SAÍDA ESPERADO
 Seja extremamente detalhista. Utilize as ferramentas nativas (Browser, Code Interpreter, Canvas) conforme necessário para atingir o objetivo."""
 
-    st.success("Prompt Gerado! Copie e cole no GLM-4.7:")
+    st.success(f"Prompt Gerado! Copie e cole no {selected_glm_model}:")
     st.code(prompt_final, language="markdown")
 
 # FIM DO ARQUIVO
