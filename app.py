@@ -2,7 +2,7 @@ import streamlit as st
 import random
 
 # Configuração da página (Aba do navegador)
-st.set_page_config(page_title="GLM Master", page_icon="💎")
+st.set_page_config(page_title="GLM Master", page_icon="/home/runner/work/meu-gerador-glm/meu-gerador-glm/icon_prompt_glm.png")
 
 # --- 1. ESTILO VISUAL (CSS) ---
 # Aqui reduzimos o tamanho do título para 50% do original e centralizamos
